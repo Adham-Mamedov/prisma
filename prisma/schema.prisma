@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  email           String          @unique
+  age             Int
+  name            String?
+  role            Role            @default(BASIC)
+  writtenPosts    Post[]          @relation("WrittenBy")
+  favouritedPosts Post[]          @relation("FavouritedBy")
+  userPreference  UserPreference?
+}
+
+model UserPreference {
+  id           String  @id @default(auto()) @map("_id") @db.ObjectId
+  emailUpdates Boolean
+  user         User    @relation(fields: [userId], references: [id])
+  userId       String  @unique @db.ObjectId
+}
+
+model Post {
+  id             String     @id @default(auto()) @map("_id") @db.ObjectId
+  title          String
+  averageRating  Float
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  author         User       @relation("WrittenBy", fields: [authorId], references: [id])
+  authorId       String
+  favouritedBy   User?      @relation("FavouritedBy", fields: [favouritedById], references: [id])
+  favouritedById String?
+  Category       Category[] @relation(fields: [categoryIds], references: [id])
+  categoryIds    String[]   @db.ObjectId
+}
+
+model Category {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  name    String   @unique
+  posts   Post[]   @relation(fields: [postIDs], references: [id])
+  postIDs String[] @db.ObjectId
+}
+
+enum Role {
+  BASIC
+  ADMIN
+  EDITOR
+}
