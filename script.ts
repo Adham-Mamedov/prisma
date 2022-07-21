@@ -4,38 +4,38 @@ const prisma = new PrismaClient()
 
 async function main() {
   await prisma.$connect();
-  // ===== READ OPERATIONS =====
-  // const users = await prisma.user.findMany();
-  const user = await prisma.user.findUnique({
+  // ===== UPDATE OPERATIONS =====
+  const user = await prisma.user.update({
     where: {
       email: 'adham@gmail.com'
+    },
+    data: {
+      name: 'Adkham',
+      age: {
+        increment: 1,
+        // decrement: 1,
+        // multiply: 10,
+        // divide: 10,
+      }
+    },
+    select: {
+      name: true,
+      age: true
+    }
+  })
+  const usersCount = await prisma.user.updateMany({
+    where: {
+      email: {
+        endsWith: 'gmail.com'
+      },
+      name: 'Adkham'
+    },
+    data: {
+      name: 'Adham'
     }
   })
 
-  const users = await prisma.user.findMany({
-    where: {
-      name: {
-        equals: 'Adham',
-      },
-      email: {
-        contains: 'test',
-        mode: 'insensitive',
-      },
-      writtenPosts: {
-        some: {
-          averageRating: {gt: 4}
-        }
-      }
-    },
-    // skip: 1,
-    // take: 2,
-    // orderBy: {
-    //   age: "desc"
-    // },
-    // distinct: ["name", "age"]
-  });
-
-  console.log({users, user})
+  console.log({user, usersCount})
 }
 
 main()
